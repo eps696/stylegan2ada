@@ -84,7 +84,8 @@ This will load `ffhq-1024.pkl` from `models` directory and make a 1920x1080 px l
 ```
  gen.bat ffhq-1024 3072-1024 100-20 -n 3-1
 ```
-This will produce animated composition of 3 independent frames, blended together horizontally (like the image in the repo header). Argument `--splitfine X` controls boundary fineness (0 = smoothest). 
+This will produce animated composition of 3 independent frames, blended together horizontally (similar to the image in the repo header). Argument `--splitfine X` controls boundary fineness (0 = smoothest). 
+
 Instead of simple frame splitting, one can load external mask(s) from b/w image file (or folder with file sequence):
 ```
  gen.bat ffhq-1024 1024-1024 100-20 --latmask _in/mask.jpg
@@ -105,7 +106,7 @@ The result (found dlatent points as Numpy arrays in `*.npy` files, and video/sti
 ```
 This will load saved dlatent points from `_in/dlats` and produce a smooth looped animation between them (with resolution 1920x1080 and interpolation step of 25 frames). `dlats` may be a file or a directory with `*.npy` or `*.npz` files. To select only few frames from a sequence `somename.npy`, create text file with comma-delimited frame numbers and save it as `somename.txt` in the same directory (check examples for FFHQ model). You can also "style" the result: setting `--style_dlat blonde458.npy` will load dlatent from `blonde458.npy` and apply it to higher layers, producing some visual similarity. `--cubic` smoothing and `--digress X` displacements are also applicable here. 
 
-* Generate animation from saved point and feature directions (say, aging/smiling/etc for faces model) in dlatent `w` space:
+* Generate animation from saved point and feature directions (say, aging/smiling/etc for FFHQ model) in dlatent `w` space:
 ```
  play_vectors.bat ffhq-1024.pkl blonde458.npy vectors_ffhq
 ```
@@ -115,12 +116,10 @@ This will load base dlatent point from `_in/blonde458.npy` and move it along dir
 ## Credits
 
 StyleGAN2: 
-Copyright © 2021, NVIDIA Corporation. All rights reserved.
-Made available under the [Nvidia Source Code License-NC]
+Copyright © 2021, NVIDIA Corporation. All rights reserved.  
+Made available under the [Nvidia Source Code License-NC]  
 Original paper: https://arxiv.org/abs/2006.06676
 
-Other contributions:
-follow the links in the descriptions.
 
 [Nvidia Source Code License-NC]: <https://nvlabs.github.io/stylegan2-ada-pytorch/license.html>
 [StyleGAN2-ada]: <https://github.com/NVlabs/stylegan2-ada-pytorch>

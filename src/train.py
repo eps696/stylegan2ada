@@ -334,11 +334,11 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--train_dir', default='train', help='Root directory for training results [default: train]', metavar='DIR')
 # data
 @click.option('--data', help='Training data (directory or zip)', metavar='PATH', required=True)
-@click.option('--resume', help='Resume training [default: noresume]', metavar='PKL')
+@click.option('--resume', help='Resume training [default: None]', metavar='PKL')
 @click.option('--mirror', default=True, type=bool, help='Enable dataset x-flips [default: true]', metavar='BOOL')
 @click.option('--cond', is_flag=True, help='Train conditional model based on dataset labels [default: false]', metavar='BOOL')
 # training
-@click.option('--cfg', default='auto', help='Base config [default: auto]', type=click.Choice(['auto', 'stylegan2', 'paper256', 'paper512', 'paper1024']))
+@click.option('--cfg', default='auto', help='Base config [default: auto]'))
 @click.option('--batch', type=int, help='Override batch size', metavar='INT')
 @click.option('--lod_kimg', default=30, type=int, help='Per layer training duration', metavar='INT')
 @click.option('--kimg', type=int, help='Override total training duration', metavar='INT')
