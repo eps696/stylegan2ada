@@ -1,0 +1,4 @@
+https://github.com/NVlabs/stylegan2-ada-pytorch
+
+set DNNLIB_CACHE_DIR=models
+set TORCH_EXTENSIONS_DIR=src/.cache/torch
