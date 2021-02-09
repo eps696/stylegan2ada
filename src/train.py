@@ -93,7 +93,6 @@ def setup_training_loop_kwargs(
         args.G_kwargs.init_res = args.D_kwargs.init_res = list(init_res)
         desc += '-%dx%d' % (image_shape[2], image_shape[1])
 
-# !!! 
     args.savenames = [desc.replace(dataname, 'snapshot'), desc]
 
     if cond:
@@ -155,7 +154,7 @@ def setup_training_loop_kwargs(
     args.ema_kimg = spec.ema
     args.ema_rampup = spec.ramp
 
-    """ 
+    """ from aydao [tf]
     if 'div' in cfg: # for diverse datasets a la cifar
         args.loss_args.pl_weight = 0 # disable path length regularization
         args.G_args.style_mixing_prob = None # disable style mixing
@@ -237,14 +236,6 @@ def setup_training_loop_kwargs(
 # !!!
         'bgf_cnc':  dict(xflip=1, rotate90=1, xint=1, scale=1, rotate=1, aniso=1, xfrac=1, contrast=0.23, imgfilter=1, noise=0.11, cutout=0.11),
         'gf_bnc':   dict(xflip=.5, xint=.5, scale=1, rotate=1, aniso=1, xfrac=1, rotate_max=.25, imgfilter=1, noise=.5, cutout=.5), # aug0
-        # 'bg_cfnc':  dict(xflip=1, rotate90=1, xint=1, scale=1, rotate=1, aniso=1, xfrac=1, contrast=0.11, imgfilter=0.11, noise=0.11, cutout=0.11),
-        # 'aug1':     dict(xflip=.25, xint=.25, scale=.5, rotate=.5, aniso=.5, xfrac=.5, rotate_max=.25, imgfilter=.25, cutout=.25),
-        # 'bg2':      dict(xflip=.25, xint=.25, scale=.5, rotate=.5, aniso=.5, xfrac=.5, rotate_max=.25),
-        # 'augg':     dict(scale=.5, rotate=.5, aniso=.5, xfrac=.5, rotate_max=.25, imgfilter=.25),
-        # 'aug2':     dict(xflip=.25, rotate90=.25, xint=.25, scale=.5, rotate=.5, aniso=.5, xfrac=.5, rotate_max=.25, imgfilter=.25, noise=.25, cutout=.25),
-        # 'bgg2':     dict(xflip=.5, rotate90=.25, xint=.5, scale=1, rotate=1, aniso=1, xfrac=.5, rotate_max=.25, imgfilter=.25, noise=.25, cutout=.25),
-        # 'bgg3':     dict(xflip=.5, rotate90=.25, scale=1, rotate=1, aniso=1, rotate_max=.25, imgfilter=.25, noise=.25, cutout=.25),
-        # 'gg':       dict(scale=.25, rotate=.25, aniso=.25, xfrac=.25, rotate_max=.25, imgfilter=.25, cutout=.25),
     }
 
     assert augpipe in augpipe_specs, ' unknown augpipe specs: %s' % augpipe
@@ -338,7 +329,7 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--mirror', default=True, type=bool, help='Enable dataset x-flips [default: true]', metavar='BOOL')
 @click.option('--cond', is_flag=True, help='Train conditional model based on dataset labels [default: false]', metavar='BOOL')
 # training
-@click.option('--cfg', default='auto', help='Base config [default: auto]'))
+@click.option('--cfg', default='auto', help='Base config [default: auto]')
 @click.option('--batch', type=int, help='Override batch size', metavar='INT')
 @click.option('--lod_kimg', default=30, type=int, help='Per layer training duration', metavar='INT')
 @click.option('--kimg', type=int, help='Override total training duration', metavar='INT')

@@ -58,7 +58,6 @@ def generate():
         assert len(nHW)==2, ' Wrong count nXY: %d (must be 2)' % len(nHW)
         n_mult = nHW[0] * nHW[1]
         if a.verbose is True and n_mult > 1: print(' Latent blending w/split frame %d x %d' % (nHW[1], nHW[0]))
-        # lmask = np.tile(np.asarray([[[[None]]]]), (1,n_mult,1,1))
         lmask = np.tile(np.asarray([[[[1]]]]), (1,n_mult,1,1))
         Gs_kwargs.countHW = nHW
         Gs_kwargs.splitfine = a.splitfine

@@ -24,7 +24,7 @@ parser.add_argument('--style_dlat', default=None, help='Saved latent vector for 
 parser.add_argument('--out_dir', default='_out', help='Output directory')
 parser.add_argument('--model', default='models/ffhq-1024-f.pkl', help='path to checkpoint file')
 parser.add_argument('--size', default=None, help='Output resolution')
-parser.add_argument('--scale_type', default='pad', help="may include pad, side, symm (try padside or sidesymm, etc.)")
+parser.add_argument('--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
 parser.add_argument('--trunc', type=float, default=1, help='Truncation psi 0..1 (lower = stable, higher = various)')
 parser.add_argument('--digress', type=float, default=0, help='distortion technique by Aydao (strength of the effect)') 
 parser.add_argument('--verbose', action='store_true')

@@ -26,7 +26,7 @@ parser.add_argument('--base_lat', default=None, help='Saved latent vector as *.n
 parser.add_argument('--out_dir', default='_out/ttt', help='Output directory')
 parser.add_argument('--model', default='models/ffhq-1024.pkl', help='path to checkpoint file')
 parser.add_argument('--size', default=None, help='output resolution, set in X-Y format')
-parser.add_argument('--scale_type', default='pad', help="may include pad, side, symm (try padside or sidesymm, etc.)")
+parser.add_argument('--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
 parser.add_argument('--trunc', type=float, default=0.8, help='truncation psi 0..1 (lower = stable, higher = various)')
 parser.add_argument('--verbose', action='store_true')
 parser.add_argument('--ops', default='cuda', help='custom op implementation (cuda or ref)')
