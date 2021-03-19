@@ -79,7 +79,7 @@ def main():
     
     # replace higher layers with single (style) latent
     if a.style_dlat is not None:
-        print(' styling with latent', a.style_dlat)
+        print(' styling with dlatent', a.style_dlat)
         style_dlatent = load_latents(a.style_dlat)
         while len(style_dlatent.shape) < 4: style_dlatent = np.expand_dims(style_dlatent, 0)
         # try replacing 5 by other value, less than Gs.num_ws

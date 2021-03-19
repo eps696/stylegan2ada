@@ -30,6 +30,23 @@ Just in case, original [StyleGAN2-ada] charms:
 * works with plain image folders or zip archives (instead of custom datasets)
 * should be easier to tweak/debug
 
+## Presumed file structure
+
+| stylegan2ada | root
+| :--- | :----------
+| &boxvr;&nbsp; **_in** | input data for generation (check examples there)
+| &boxvr;&nbsp; **_out** | generation output (sequences, videos, projected latents)
+| &boxvr;&nbsp; **data** | datasets for training
+| &boxv;&nbsp; &boxvr;&nbsp; source | [example] folder with raw images
+| &boxv;&nbsp; &boxvr;&nbsp; mydata | [example] prepared dataset (folder with clean images)
+| &boxv;&nbsp; &boxur;&nbsp;  newdata | [example] another dataset
+| &boxvr;&nbsp; **models** | trained networks for inference/generation
+| &boxv;&nbsp; &boxur;&nbsp;  ffhq-1024.pkl | [example] trained network file (may contain Gs only)
+| &boxvr;&nbsp; **src** | source code
+| &boxur;&nbsp; **train** | training folders
+| &ensp;&ensp; &boxvr;&nbsp;  ffhq-512.pkl | [example] pre-trained model file (full G/D/Gs)
+| &ensp;&ensp; &boxvr;&nbsp;  000-mydata-512-.. | [example] auto-created trained folder
+| &ensp;&ensp; &boxur;&nbsp;&#x22ef;  | 
 
 ## Training
 

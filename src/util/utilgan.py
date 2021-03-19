@@ -231,8 +231,8 @@ def tile_pad(xt, padding, symm=True):
 
     x_idx = np.arange(-left, w+right)
     y_idx = np.arange(-top, h+bottom)
-    x_pad = tile(x_idx, -0.5, w-0.5)
-    y_pad = tile(y_idx, -0.5, h-0.5)
+    x_pad = tile(x_idx, -0.5, w-0.5, symm)
+    y_pad = tile(y_idx, -0.5, h-0.5, symm)
     xx, yy = np.meshgrid(x_pad, y_pad)
     return xt[..., yy, xx]
 
@@ -265,12 +265,12 @@ def fix_size(x, size, scale_type='centr'):
     if scale_type.lower() == 'fit':
         return F.interpolate(x, size, mode='nearest') # , align_corners=True
     elif 'pad' in scale_type.lower():
-        old_size = list(x.shape[2:])
+        pass
     else: # proportional scale to smaller side, then pad to bigger side
         sh0 = x.shape[2:]
-        upsc = np.min([float(size[i]) / float(sh0[i]) for i in [0,1]])
-        old_size = [int(sh0[i]*upsc) for i in [0,1]]
-        x = F.interpolate(x, old_size, mode='nearest') # , align_corners=True
+        upsc = np.min(size) / np.min(sh0)
+        new_size = [int(sh0[i]*upsc) for i in [0,1]]
+        x = F.interpolate(x, new_size, mode='nearest') # , align_corners=True
 
     x = pad_up_to(x, size, scale_type)
     return x
