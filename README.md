@@ -38,7 +38,7 @@ Just in case, original [StyleGAN2-ada] charms:
 | &boxvr;&nbsp; **_out** | generation output (sequences, videos, projected latents)
 | &boxvr;&nbsp; **data** | datasets for training
 | &boxv;&nbsp; &boxvr;&nbsp; source | [example] folder with raw images
-| &boxv;&nbsp; &boxvr;&nbsp; mydata | [example] prepared dataset (folder with clean images)
+| &boxv;&nbsp; &boxvr;&nbsp; mydata(.zip) | [example] prepared dataset (folder with clean images or archive)
 | &boxv;&nbsp; &boxur;&nbsp;  newdata | [example] another dataset
 | &boxvr;&nbsp; **models** | trained networks for inference/generation
 | &boxv;&nbsp; &boxur;&nbsp;  ffhq-1024.pkl | [example] trained network file (may contain Gs only)
