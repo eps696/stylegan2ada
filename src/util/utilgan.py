@@ -247,10 +247,11 @@ def pad_up_to(x, size, type='centr'):
             p0 = (s-sh[i]) // 2
             p1 = s-sh[i] - p0
             padding = padding + [p0,p1]
-    if 'symm' in type.lower():
-        y = tile_pad(x, padding, symm=True)
-    else:
-        y = F.pad(x, padding, 'circular')
+    y = tile_pad(x, padding, symm = 'symm' in type.lower())
+    # if 'symm' in type.lower():
+        # y = tile_pad(x, padding, symm=True)
+    # else:
+        # y = F.pad(x, padding, 'circular')
     return y
 
 # scale_type may include pad, side, symm

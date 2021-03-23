@@ -130,6 +130,10 @@ def _populate_module_params(module, *patterns):
 # !!! custom
 def custom_generator(data, **ex_kwargs):
     from training import stylegan2_multi as networks
+    try: # saved? (with new fix)
+        fmap_base = data['G_ema'].synthesis.fmap_base
+    except: # default from original configs
+        fmap_base = 32768 if data['G_ema'].img_resolution >= 512 else 16384
     kwargs = dnnlib.EasyDict(
         z_dim           = data['G_ema'].z_dim,
         c_dim           = data['G_ema'].c_dim,
@@ -138,7 +142,7 @@ def custom_generator(data, **ex_kwargs):
         img_channels    = data['G_ema'].img_channels,
         init_res        = data['G_ema'].init_res,
         mapping_kwargs  = dnnlib.EasyDict(num_layers = data['G_ema'].mapping.num_layers),
-        synthesis_kwargs = dnnlib.EasyDict(**ex_kwargs),
+        synthesis_kwargs = dnnlib.EasyDict(channel_base = fmap_base, **ex_kwargs),
     )
     G_out = networks.Generator(**kwargs).eval().requires_grad_(False)
     misc.copy_params_and_buffers(data['G_ema'], G_out, require_all=False)
