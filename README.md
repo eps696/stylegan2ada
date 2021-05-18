@@ -67,7 +67,7 @@ This will run training process, according to the settings in `src/train.py` (che
 
 Please note: we save both compact models (containing only Gs network for inference) as `<dataset>-...pkl` (e.g. `mydata-512-0360.pkl`), and full models (containing G/D/Gs networks for further training) as `snapshot-...pkl`. The naming is for convenience only.
 
-Length of the training is defined by `--lod_kimg X` argument (training duration per layer/LOD). Network with base resolution 1024px will be trained for 20 such steps, for 512px - 18 steps, et cetera. Reasonable `lod_kimg` value for full training from scratch is 300-600, while for finetuning 20-40 is sufficient. One can override this approach, setting total duration directly with `--kimg X`.
+Training duration is defined by `--kimg X` argument (amount of thousands of samples processed). Reasonable value for training from scratch is ~5000, while for finetuning 1000 may be sufficient.  
 
 If you have troubles with custom cuda ops, try removing their cached version (`C:\Users\eps\AppData\Local\torch_extensions` on Windows).
 
@@ -78,9 +78,8 @@ If you have troubles with custom cuda ops, try removing their cached version (`C
 
 * Uptrain (finetune) well-trained model `ffhq-512.pkl` on new data:
 ```
- train_resume.bat newdata ffhq-512.pkl
+ train_resume.bat newdata ffhq-512.pkl --kimg 1000
 ```
-No need to count exact steps in this case, just stop when you're ok with the results (it's better to set low `lod_kimg` to follow the progress). 
 
 ## Generation
 

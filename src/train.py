@@ -30,7 +30,6 @@ def setup_training_loop_kwargs(
     # training
     cfg        = None, # Base config: 'auto' (default), 'stylegan2', 'paper256', 'paper512', 'paper1024', 'cifar'
     batch      = None, # Override batch size: <int>
-    lod_kimg   = None, # Training duration per LOD/layer: <int>
     kimg       = None, # Override training duration: <int>
     snap       = None, # Snapshot interval: <int>, default = 5 ticks
     gamma      = None, # Override R1 gamma: <float>
@@ -114,8 +113,8 @@ def setup_training_loop_kwargs(
     if gpus > 1: desc += f'{gpus:d}'
 
     cfg_specs = {
-        'auto': dict(ramp=0.05, map=2), # mapping_layers = 2 for uptrain (why?)
-        'eps':  dict(lrate=0.001, ema=10, ramp=0.05, map=2), # populated based on 'gpus' and 'res'
+        'auto': dict(ramp=0.05, map=8),
+        'eps':  dict(lrate=0.001, ema=10, ramp=0.05, map=8), 
         'big':  dict(mb=4, fmaps=1, lrate=0.002, gamma=10, ema=10, ramp=None, map=8), # aydao etc
     }
 
@@ -123,7 +122,7 @@ def setup_training_loop_kwargs(
     spec = dnnlib.EasyDict(cfg_specs[cfg])
     if cfg == 'auto':
         # spec.mb = max(min(gpus * min(4096 // res, 32), 64), gpus) # keep gpu memory consumption at bay
-        spec.mb = max(min(gpus * min(3072 // res, 32), 64), gpus) # keep gpu memory consumption at bay
+        spec.mb = max(min(gpus * min(3072 // res, 32), 64), gpus) # for 11gb RAM
         spec.fmaps = 1 if res >= 512 else 0.5
         spec.lrate = 0.002 if res >= 1024 else 0.0025
         spec.gamma = 0.0002 * (res ** 2) / spec.mb # heuristic formula
@@ -146,9 +145,7 @@ def setup_training_loop_kwargs(
     args.D_opt_kwargs = dnnlib.EasyDict(class_name='torch.optim.Adam', lr=spec.lrate, betas=[0,0.99], eps=1e-8)
     args.loss_kwargs = dnnlib.EasyDict(class_name='training.loss.StyleGAN2Loss', r1_gamma=spec.gamma)
 
-    # use per-layer duration lod_kimg, or override with total kimg
-    args.total_kimg = kimg if (kimg is not None and kimg >= 1) else lod_kimg * res_log2 * 3 # ~ ProGAN *1.5
-    
+    args.total_kimg = kimg 
     args.batch_size = spec.mb
     args.batch_gpu = spec.mb // spec.ref_gpus
     args.ema_kimg = spec.ema
@@ -331,8 +328,7 @@ class CommaSeparatedList(click.ParamType):
 # training
 @click.option('--cfg', default='auto', help='Base config [default: auto]')
 @click.option('--batch', type=int, help='Override batch size', metavar='INT')
-@click.option('--lod_kimg', default=30, type=int, help='Per layer training duration', metavar='INT')
-@click.option('--kimg', type=int, help='Override total training duration', metavar='INT')
+@click.option('--kimg', type=int, help='Total training duration', metavar='INT')
 @click.option('--snap', default=5, type=int, help='Snapshot interval [default: 5 ticks]', metavar='INT')
 @click.option('--gamma', type=float, help='Override R1 gamma')
 @click.option('--freezed', type=int, help='Freeze-D [default: 0 layers]', metavar='INT')
