@@ -59,7 +59,7 @@ def setup_training_loop_kwargs(
     args.num_gpus = gpus
 
     assert snap > 1, '--snap must be at least 1'
-    args.image_snapshot_ticks = 1
+    args.image_snapshot_ticks = 1 * gpus if kimg <= 1000 else 4 * gpus
     args.network_snapshot_ticks = snap
 
     args.random_seed = seed
@@ -118,17 +118,20 @@ def setup_training_loop_kwargs(
         'big':  dict(mb=4, fmaps=1, lrate=0.002, gamma=10, ema=10, ramp=None, map=8), # aydao etc
     }
 
+    if batch is None:
+        batch = max(min(4096//res, 32), 1) # from 1 to 32
+        # batch = max(min(3072//res, 32), 1) # for 11gb RAM
+
     assert cfg in cfg_specs
     spec = dnnlib.EasyDict(cfg_specs[cfg])
     if cfg == 'auto':
-        # spec.mb = max(min(gpus * min(4096 // res, 32), 64), gpus) # keep gpu memory consumption at bay
-        spec.mb = max(min(gpus * min(3072 // res, 32), 64), gpus) # for 11gb RAM
+        spec.mb = min(batch * gpus, 64)
         spec.fmaps = 1 if res >= 512 else 0.5
         spec.lrate = 0.002 if res >= 1024 else 0.0025
         spec.gamma = 0.0002 * (res ** 2) / spec.mb # heuristic formula
         spec.ema = spec.mb * 10 / 32
     elif cfg == 'eps':
-        spec.mb = max(min(gpus * min(3072 // res, 32), 64), gpus)
+        spec.mb = min(batch * gpus, 64)
         spec.fmaps = 1 if res >= 512 else 0.5
         spec.gamma = 0.00001 * (res ** 2) / spec.mb # !!! my mb 3~4 instead of 32~64
     spec.ref_gpus = gpus
@@ -179,12 +182,6 @@ def setup_training_loop_kwargs(
         assert gamma >= 0, '--gamma must be non-negative'
         desc += f'-gamma{gamma:g}'
         args.loss_kwargs.r1_gamma = gamma
-
-    if batch is not None:
-        assert (batch >= 1 and batch % gpus == 0), '--batch must be at least 1 and divisible by --gpus'
-        desc += f'-batch{batch}'
-        args.batch_size = batch
-        args.batch_gpu = batch // gpus
 
     # Discriminator augmentation: aug, p, target, augpipe
     # ---------------------------------------------------
@@ -327,7 +324,7 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--cond', is_flag=True, help='Train conditional model based on dataset labels [default: false]', metavar='BOOL')
 # training
 @click.option('--cfg', default='auto', help='Base config [default: auto]')
-@click.option('--batch', type=int, help='Override batch size', metavar='INT')
+@click.option('--batch', type=int, help='Override batch size (per GPU)', metavar='INT')
 @click.option('--kimg', type=int, help='Total training duration', metavar='INT')
 @click.option('--snap', default=5, type=int, help='Snapshot interval [default: 5 ticks]', metavar='INT')
 @click.option('--gamma', type=float, help='Override R1 gamma')
