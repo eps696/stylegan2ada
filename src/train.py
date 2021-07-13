@@ -58,7 +58,7 @@ def setup_training_loop_kwargs(
     assert (gpus >= 1 and gpus & (gpus - 1) == 0), '--gpus must be a power of two'
     args.num_gpus = gpus
 
-    assert snap > 1, '--snap must be at least 1'
+    assert snap >= 1, '--snap must be at least 1'
     args.image_snapshot_ticks = 1 * gpus if kimg <= 1000 else 4 * gpus
     args.network_snapshot_ticks = snap
 
