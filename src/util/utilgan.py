@@ -37,10 +37,7 @@ def load_latents(npy_file):
 
 # = = = = = = = = = = = = = = = = = = = = = = = = = = = 
 
-def get_z(shape, seed=None, uniform=False):
-    if seed is None:
-        seed = np.random.seed(int((time.time()%1) * 9999))
-    rnd = np.random.RandomState(seed)
+def get_z(shape, rnd, uniform=False):
     if uniform:
         return rnd.uniform(0., 1., shape)
     else:
@@ -92,15 +89,17 @@ def cublerp(points, steps, fstep):
     
 def latent_anima(shape, frames, transit, key_latents=None, smooth=0.5, cubic=False, gauss=False, seed=None, verbose=True):
     if key_latents is None:
-        transit = int(max(1, min(frames//4, transit)))
+        transit = int(max(1, min(frames, transit)))
     steps = max(1, int(frames // transit))
     log = ' timeline: %d steps by %d' % (steps, transit)
 
-    getlat = lambda : get_z(shape, seed=seed)
+    if seed is None:
+        seed = np.random.seed(int((time.time()%1) * 9999))
+    rnd = np.random.RandomState(seed)
     
     # make key points
     if key_latents is None:
-        key_latents = np.array([getlat() for i in range(steps)])
+        key_latents = np.array([get_z(shape, rnd) for i in range(steps)])
 
     latents = np.expand_dims(key_latents[0], 0)
     

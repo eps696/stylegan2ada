@@ -31,6 +31,7 @@ parser.add_argument('--splitfine', type=float, default=0, help='multi latent fra
 parser.add_argument('--trunc', type=float, default=0.8, help='truncation psi 0..1 (lower = stable, higher = various)')
 parser.add_argument('--digress', type=float, default=0, help='distortion technique by Aydao (strength of the effect)') 
 parser.add_argument('--save_lat', action='store_true', help='save latent vectors to file')
+parser.add_argument('--seed', type=int, default=None)
 parser.add_argument('--verbose', '-v', action='store_true')
 # animation
 parser.add_argument('--frames', default='200-25', help='total frames to generate, length of interpolation step')
@@ -43,7 +44,8 @@ if a.size is not None: a.size = [int(s) for s in a.size.split('-')][::-1]
 
 def generate():
     os.makedirs(a.out_dir, exist_ok=True)
-    np.random.seed(seed=696)
+    if a.seed==0: a.seed = None
+    np.random.seed(seed=a.seed)
     device = torch.device('cuda')
 
     # setup generator
@@ -90,7 +92,7 @@ def generate():
     if a.verbose is True: print(' making timeline..')
     lats = [] # list of [frm,1,512]
     for i in range(n_mult):
-        lat_tmp = latent_anima((1, Gs.z_dim), a.frames, a.fstep, cubic=a.cubic, gauss=a.gauss, verbose=False) # [frm,1,512]
+        lat_tmp = latent_anima((1, Gs.z_dim), a.frames, a.fstep, cubic=a.cubic, gauss=a.gauss, seed=a.seed, verbose=False) # [frm,1,512]
         lats.append(lat_tmp) # list of [frm,1,512]
     latents = np.concatenate(lats, 1) # [frm,X,512]
     print(' latents', latents.shape)
@@ -103,7 +105,7 @@ def generate():
         except: init_res = (4,4) # default initial layer size 
         dconst = []
         for i in range(n_mult):
-            dc_tmp = a.digress * latent_anima([1, Gs.z_dim, *init_res], a.frames, a.fstep, cubic=True, verbose=False)
+            dc_tmp = a.digress * latent_anima([1, Gs.z_dim, *init_res], a.frames, a.fstep, cubic=True, seed=a.seed, verbose=False)
             dconst.append(dc_tmp)
         dconst = np.concatenate(dconst, 1)
     else:
