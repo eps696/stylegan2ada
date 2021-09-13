@@ -33,6 +33,7 @@ def setup_training_loop_kwargs(
     kimg       = None, # Override training duration: <int>
     snap       = None, # Snapshot interval: <int>, default = 5 ticks
     gamma      = None, # Override R1 gamma: <float>
+    fmaps_fix  = None, # Set fmaps count as in original StyleGAN2: <bool>, default = False
     freezed    = None, # Freeze-D: <int>, default = 0 discriminator layers
     seed       = None, # Random seed: <int>, default = 0
     # d augment
@@ -136,6 +137,7 @@ def setup_training_loop_kwargs(
         spec.gamma = 0.00001 * (res ** 2) / spec.mb # !!! my mb 3~4 instead of 32~64
     spec.ref_gpus = gpus
     spec.mbstd = spec.mb // gpus # min(spec.mb // gpus, 4) # other hyperparams behave more predictably if mbstd group size remains fixed
+    if fmaps_fix is True: spec.fmaps = 1
 
     args.G_kwargs.synthesis_kwargs.channel_base = args.D_kwargs.channel_base = int(spec.fmaps * 32768) # TWICE MORE than sg2 on tf !!!
     args.G_kwargs.synthesis_kwargs.channel_max = args.D_kwargs.channel_max = 512
@@ -328,6 +330,7 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--kimg', type=int, help='Total training duration', metavar='INT')
 @click.option('--snap', default=5, type=int, help='Snapshot interval [default: 5 ticks]', metavar='INT')
 @click.option('--gamma', type=float, help='Override R1 gamma')
+@click.option('--fmaps_fix', is_flag=True, help='Fix fmaps count, as in original StyleGAN2', metavar='BOOL')
 @click.option('--freezed', type=int, help='Freeze-D [default: 0 layers]', metavar='INT')
 @click.option('--seed', default=0, type=int, help='Random seed [default: 0]', metavar='INT')
 # Discriminator augmentation.

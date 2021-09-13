@@ -201,8 +201,8 @@ def convert_tf_generator(tf_G, custom=False, **ex_kwargs):
     if custom:
         kwargs.synthesis_kwargs = dnnlib.EasyDict(**kwargs.synthesis_kwargs, **ex_kwargs)
     if len(unknown_kwargs) > 0:
-        raise ValueError('Unknown TensorFlow kwargs:', unknown_kwargs)
-        # raise ValueError('Unknown TensorFlow kwarg', unknown_kwargs[0])
+        print(' warning: unknown TF kwargs', unknown_kwargs)
+        # raise ValueError('Unknown TensorFlow kwargs:', unknown_kwargs)
     # try: 
         # if ex_kwargs['verbose'] is True: print(kwargs.synthesis_kwargs)
     # except: pass
@@ -307,7 +307,8 @@ def convert_tf_discriminator(tf_D):
     kwarg('structure')
     unknown_kwargs = list(set(tf_kwargs.keys()) - known_kwargs)
     if len(unknown_kwargs) > 0:
-        raise ValueError('Unknown TensorFlow kwarg', unknown_kwargs[0])
+        print(' warning: unknown TF kwargs', unknown_kwargs)
+        # raise ValueError('Unknown TensorFlow kwarg', unknown_kwargs)
 
     # Collect params.
     tf_params = _collect_tf_params(tf_D)
