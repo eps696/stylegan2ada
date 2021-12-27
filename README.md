@@ -8,7 +8,7 @@ This version of the newest PyTorch-based [StyleGAN2-ada] is intended mostly for 
 Tested on Python 3.7 + PyTorch 1.7.1, requires [FFMPEG] for sequence-to-video conversions. For more explicit details refer to the original implementations. 
 
 Here is previous [Tensorflow-based version], which produces compatible models (but not vice versa).  
-I still prefer it for few-shot training (~100 imgs), and for model surgery tricks (not ported here yet).
+I still prefer it for few-shot training (~100 imgs) on the older hardware.
 
 ## Features
 * inference (image generation) in arbitrary resolution (finally with proper padding on both TF and Torch)
