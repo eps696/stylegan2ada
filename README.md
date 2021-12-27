@@ -128,6 +128,38 @@ This will load saved dlatent points from `_in/dlats` and produce a smooth looped
 ```
 This will load base dlatent point from `_in/blonde458.npy` and move it along direction vectors from `_in/vectors_ffhq`, one by one. Result is saved as looped video. 
 
+## Tweaking models
+
+* Strip G/D networks from a full model, leaving only Gs for inference:
+```
+ model_convert.bat snapshot-1024.pkl 
+```
+Resulting file is saved with `-Gs` suffix. It's recommended to add `-r` option to reconstruct the network, saving necessary arguments with it. Useful for foreign downloaded models.
+
+* Add or remove layers (from a trained model) to adjust its resolution for further finetuning:
+```
+ model_convert.bat snapshot-256.pkl --res 512
+```
+This will produce new model with 512px resolution, populating weights on the layers up to 256px from the source snapshot (the rest will be initialized randomly). It also can decrease resolution (say, make 512 from 1024). Note that this effectively changes number of layers in the model. 
+
+This option works with complete (G/D/Gs) models only, since it's purposed for transfer-learning (resulting model will contain either partially random weights, or wrong `ToRGB` params). 
+
+* Crop or pad layers of a trained model to adjust its aspect ratio:
+```
+ model_convert.bat snapshot-1024.pkl --res 1280-768
+```
+This produces working non-square model. In case of basic aspect conversion (like 4x4 => 5x3), complete models (G/D/Gs) will be trainable for further finetuning.  
+These functions are experimental, with some voluntary logic, so use with care.
+
+* Add alpha channel to a trained model for further finetuning:
+```
+ model_convert.bat snapshot-1024.pkl --alpha
+```
+All above (adding/cropping/padding layers + alpha channel) can be done in one shot:
+```
+ model_convert.bat snapshot-256.pkl --res 1280-768 --alpha
+```
+
 
 ## Credits
 

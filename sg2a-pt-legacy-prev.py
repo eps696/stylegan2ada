@@ -24,7 +24,7 @@ def load_network_pkl(f, force_fp16=False, custom=False, **ex_kwargs):
     # data = pickle.load(f, encoding='latin1')
 
     # Legacy TensorFlow pickle => convert.
-    if isinstance(data, tuple) and len(data) == 3 and all(isinstance(net, _TFNetworkStub) for net in data): # old tf, full 3 nets
+    if isinstance(data, tuple) and len(data) == 3 and all(isinstance(net, _TFNetworkStub) for net in data):
         tf_G, tf_D, tf_Gs = data
         G = convert_tf_generator(tf_G, custom=custom, **ex_kwargs)
         D = convert_tf_discriminator(tf_D)
@@ -34,16 +34,17 @@ def load_network_pkl(f, force_fp16=False, custom=False, **ex_kwargs):
         assert isinstance(data['G'], torch.nn.Module)
         assert isinstance(data['D'], torch.nn.Module)
         nets = ['G', 'D', 'G_ema']
-    elif isinstance(data, _TFNetworkStub): # old tf, only G
+    elif isinstance(data, _TFNetworkStub):
         G_ema = convert_tf_generator(data, custom=custom, **ex_kwargs)
         data = dict(G_ema=G_ema)
         nets = ['G_ema']
     else:
 # !!! custom
-        if custom: # new custom, only G
-            data = create_networks(data, full=False, custom=True, **ex_kwargs)
+        if custom is True:
+            G_ema = custom_generator(data, **ex_kwargs)
+            data = dict(G_ema=G_ema)
             nets = ['G_ema']
-        else: # new, full 3 nets
+        else:
             nets = []
             for name in ['G', 'D', 'G_ema']:
                 if name in data.keys():
@@ -127,50 +128,25 @@ def _populate_module_params(module, *patterns):
 #----------------------------------------------------------------------------
 
 # !!! custom
-def create_networks(data, full=False, custom=True, **ex_kwargs):
-    if custom:
-        from training import stylegan2_multi as networks
-    else:
-        from training import networks
-
-    Gs_in = data['G_ema']
-    init_res = Gs_in.init_res if hasattr(Gs_in, 'init_res') else [Gs_in.img_channels, Gs_in.img_resolution, Gs_in.img_resolution]
-    if hasattr(Gs_in.synthesis, 'fmap_base'): # saved (in updated network)?
+def custom_generator(data, **ex_kwargs):
+    from training import stylegan2_multi as networks
+    try: # saved? (with new fix)
         fmap_base = data['G_ema'].synthesis.fmap_base
-    else: # default from original configs
+    except: # default from original configs
         fmap_base = 32768 if data['G_ema'].img_resolution >= 512 else 16384
-
-    kwargs = dnnlib.EasyDict( # both G and D
-        c_dim           = Gs_in.c_dim,
-        img_resolution  = Gs_in.img_resolution,
-        img_channels    = Gs_in.img_channels,
-        init_res        = init_res,
-        # mapping_kwargs  = dnnlib.EasyDict(num_layers = Gs_in.mapping.num_layers),
+    kwargs = dnnlib.EasyDict(
+        z_dim           = data['G_ema'].z_dim,
+        c_dim           = data['G_ema'].c_dim,
+        w_dim           = data['G_ema'].w_dim,
+        img_resolution  = data['G_ema'].img_resolution,
+        img_channels    = data['G_ema'].img_channels,
+        init_res        = data['G_ema'].init_res,
+        mapping_kwargs  = dnnlib.EasyDict(num_layers = data['G_ema'].mapping.num_layers),
+        synthesis_kwargs = dnnlib.EasyDict(channel_base = fmap_base, **ex_kwargs),
     )
-    G_kwargs = dnnlib.EasyDict(**kwargs)
-    G_kwargs.z_dim           = Gs_in.z_dim
-    G_kwargs.w_dim           = Gs_in.w_dim
-    G_kwargs.synthesis_kwargs = dnnlib.EasyDict(channel_base = fmap_base, **ex_kwargs)
-    G_kwargs.mapping_kwargs  = dnnlib.EasyDict(num_layers = Gs_in.mapping.num_layers)
-
-    G_out = networks.Generator(**G_kwargs).eval().requires_grad_(False)
-    misc.copy_params_and_buffers(Gs_in, G_out, require_all=False)
-    nets_out = dict(G_ema=G_out)
-    # nets_out = dnnlib.EasyDict(G_ema=G_out)
-
-# !!! EXPERIMENTAL
-    if full is True:
-        assert 'D' in data.keys(), 'No D found in the input model!'
-        D_in = data['D']
-        D_kwargs = dnnlib.EasyDict(**kwargs)
-        # D_kwargs.architecture   = 'orig' # cifar 
-        D_kwargs.mapping_kwargs = dnnlib.EasyDict(num_layers=0)
-        D_out = networks.Discriminator(**D_kwargs).eval().requires_grad_(False)
-        misc.copy_params_and_buffers(D_in, D_out, require_all=False)
-        nets_out['D'] = D_out
-        nets_out['G'] = copy.deepcopy(G_out).requires_grad_(False) # .eval().to(device) # type: ignore
-
-    return nets_out
+    G_out = networks.Generator(**kwargs).eval().requires_grad_(False)
+    misc.copy_params_and_buffers(data['G_ema'], G_out, require_all=False)
+    return G_out
 
 # !!! custom
 def convert_tf_generator(tf_G, custom=False, **ex_kwargs):
