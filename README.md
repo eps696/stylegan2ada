@@ -14,6 +14,7 @@ I still prefer it for few-shot training (~100 imgs), and for model surgery trick
 * inference (image generation) in arbitrary resolution (finally with proper padding on both TF and Torch)
 * **multi-latent inference** with split-frame or masked blending
 * non-square aspect ratio support (auto-picked from dataset; resolution must be divisible by 2**n, such as 512x256, 1280x768, etc.)
+* various conversion options (changing resolution/aspect, adding alpha channel, etc.) for pretrained models (for further finetuning)
 * transparency (alpha channel) support (auto-picked from dataset)
 * using plain image subfolders as conditional datasets 
 * funky "digression" inference technique, ported from [Aydao]
