@@ -8,7 +8,11 @@ import pickle
 import torch
 
 import dnnlib, legacy
-from util.progress_bar import ProgressBar
+try: # progress bar for notebooks 
+    get_ipython().__class__.__name__
+    from util.progress_bar import ProgressIPy as ProgressBar
+except: # normal console
+    from util.progress_bar import ProgressBar
 
 def get_args():
     parser = argparse.ArgumentParser(description="Rosinality (pytorch) to Nvidia (pkl) checkpoint converter")
