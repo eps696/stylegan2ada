@@ -111,7 +111,6 @@ def main():
         res_in = Gs_in.img_resolution
         out_shape = [None, Gs_in.img_channels, res_in, res_in]
     save_full = False
-    # img_resolution 1024, z_dim 512, c_dim 0, w_dim 512, img_channels 3, mapping.num_layers 8, init_res
     # netdict = net_in['G_ema'].state_dict()
     # for k in netdict.keys(): 
         # print(k, netdict[k].shape)
