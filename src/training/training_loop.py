@@ -120,6 +120,8 @@ def training_loop(
     G_reg_interval          = 4,        # How often to perform regularization for G? None = disable lazy regularization.
     D_reg_interval          = 16,       # How often to perform regularization for D? None = disable lazy regularization.
     augment_p               = 0,        # Initial value of augmentation probability.
+# !!! apa
+    apa                     = False,     # Use APA + ADA
     ada_target              = None,     # ADA target value. None = fixed p.
     ada_interval            = 4,        # How often to perform ADA adjustment?
     ada_kimg                = 500,      # ADA adjustment speed, measured in how many kimg it takes for p to increase/decrease by one unit.
@@ -143,6 +145,10 @@ def training_loop(
     torch.backends.cudnn.benchmark = cudnn_benchmark    # Improves training speed.
     conv2d_gradfix.enabled = True                       # Improves training speed.
     grid_sample_gradfix.enabled = True                  # Avoids errors with the augmentation pipe.
+
+# !!! apa
+    if apa is True:
+        print('Using APA')
 
     # Load training set.
     # if rank == 0:
@@ -207,9 +213,13 @@ def training_loop(
             ddp_modules[name] = module
 
     # Setup training phases.
-    # if rank == 0:
+    if rank == 0:
         # print('Setting up training phases...')
-    loss = dnnlib.util.construct_class_by_name(device=device, **ddp_modules, **loss_kwargs) # subclass of training.loss.Loss
+# !!! apa
+        dict_apa = {'apa':apa} if apa else {}
+        loss = dnnlib.util.construct_class_by_name(device=device, **ddp_modules, **dict_apa, **loss_kwargs) # subclass of training.loss.Loss
+    # loss = dnnlib.util.construct_class_by_name(device=device, **ddp_modules, **loss_kwargs) # subclass of training.loss.Loss
+
     phases = []
     for name, module, opt_kwargs, reg_interval in [('G', G, G_opt_kwargs, G_reg_interval), ('D', D, D_opt_kwargs, D_reg_interval)]:
         if reg_interval is None:
@@ -463,6 +473,6 @@ def training_loop(
     # Done.
     if rank == 0:
         print()
-        print('Exiting...')
+        print('Done')
 
 #----------------------------------------------------------------------------

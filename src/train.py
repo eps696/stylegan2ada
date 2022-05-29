@@ -37,7 +37,7 @@ def setup_training_loop_kwargs(
     freezed    = None, # Freeze-D: <int>, default = 0 discriminator layers
     seed       = None, # Random seed: <int>, default = 0
     # d augment
-    aug        = None, # Augmentation mode: 'ada' (default), 'noaug', 'fixed'
+    aug        = None, # Augmentation mode: 'ada' (default), 'apa', 'noaug', 'fixed'
     p          = None, # Specify p for 'fixed' (required): <float>
     target     = None, # Override ADA target for 'ada': <float>, default = depends on aug
     augpipe    = None, # Augmentation pipeline: 'blit', 'geom', 'color', 'filter', 'noise', 'cutout', 'bg', 'bgc' (default), ..., 'bgcfnc'
@@ -188,9 +188,13 @@ def setup_training_loop_kwargs(
     # Discriminator augmentation: aug, p, target, augpipe
     # ---------------------------------------------------
 
+# !!! apa
+    if aug == 'apa':
+        args.apa = True
+
     if aug != 'ada': desc += f'-{aug}'
 
-    if aug == 'ada':
+    if aug == 'ada' or aug == 'apa':
         args.ada_target = 0.6
     elif aug == 'noaug':
         pass
@@ -231,7 +235,7 @@ def setup_training_loop_kwargs(
         'bgcfnc': dict(xflip=1, rotate90=1, xint=1, scale=1, rotate=1, aniso=1, xfrac=1, brightness=1, contrast=1, lumaflip=1, hue=1, saturation=1, imgfilter=1, noise=1, cutout=1),
 # !!!
         'bgf_cnc':  dict(xflip=1, rotate90=1, xint=1, scale=1, rotate=1, aniso=1, xfrac=1, contrast=0.23, imgfilter=1, noise=0.11, cutout=0.11),
-        'gf_bnc':   dict(xflip=.5, xint=.5, scale=1, rotate=1, aniso=1, xfrac=1, rotate_max=.25, imgfilter=1, noise=.5, cutout=.5), # aug0
+        'gf_bnc':   dict(xflip=.5, xint=.5, scale=1, rotate=1, aniso=1, xfrac=1, rotate_max=.25, imgfilter=1, noise=.5, cutout=.5),
     }
 
     assert augpipe in augpipe_specs, ' unknown augpipe specs: %s' % augpipe
@@ -334,7 +338,7 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--freezed', type=int, help='Freeze-D [default: 0 layers]', metavar='INT')
 @click.option('--seed', default=0, type=int, help='Random seed [default: 0]', metavar='INT')
 # Discriminator augmentation.
-@click.option('--aug', default='ada', help='Augmentation mode [default: ada]', type=click.Choice(['noaug', 'ada', 'fixed']))
+@click.option('--aug', default='apa', help='Augmentation mode [default: ada]', type=click.Choice(['noaug', 'ada', 'apa', 'fixed']))
 @click.option('--p', type=float, help='Augmentation probability for --aug=fixed')
 @click.option('--target', type=float, help='ADA target value for --aug=ada')
 # @click.option('--augpipe', default='bgc', help='Augmentation pipeline', type=click.Choice(['blit', 'geom', 'color', 'filter', 'noise', 'cutout', 'bg', 'bgc', 'bgcf', 'bgcfn', 'bgcfnc']))
@@ -367,7 +371,6 @@ def main(ctx, train_dir, dry_run, **config_kwargs):
     args.run_dir = os.path.join(train_dir, f'{cur_run_id:03d}-{run_desc}')
     assert not os.path.exists(args.run_dir)
 
-    # Print options.
     # print(' Training options:')
     # print(json.dumps(args, indent=2))
     print(' Train dir: ', args.run_dir)

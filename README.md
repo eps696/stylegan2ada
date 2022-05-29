@@ -4,8 +4,8 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eps696/stylegan2ada/blob/master/StyleGAN2a_colab.ipynb)
 
-This version of the newest PyTorch-based [StyleGAN2-ada] is intended mostly for fellow artists, who rarely look at scientific metrics, but rather need a working creative tool. 
-Tested on Python 3.7 + PyTorch 1.7.1, requires [FFMPEG] for sequence-to-video conversions. For more explicit details refer to the original implementations. 
+This version of the PyTorch-based [StyleGAN2-ada] is intended mostly for fellow artists, who rarely look at scientific metrics, but rather need a working creative tool. 
+Tested on Python 3.7~3.8 + PyTorch 1.7~1.10, requires [FFMPEG] for sequence-to-video conversions. For more explicit details refer to the original implementations. 
 
 Here is previous [Tensorflow-based version], which produces compatible models (but not vice versa).  
 I still prefer it for few-shot training (~100 imgs) on the older hardware.
@@ -17,6 +17,7 @@ I still prefer it for few-shot training (~100 imgs) on the older hardware.
 * various conversion options (changing resolution/aspect, adding alpha channel, etc.) for pretrained models (for further finetuning)
 * transparency (alpha channel) support (auto-picked from dataset)
 * using plain image subfolders as conditional datasets 
+* adaptive pseudo augmentation from [DeceiveD] (on by default)
 * funky "digression" inference technique, ported from [Aydao]
 
 Few operation formats ::
@@ -26,7 +27,7 @@ Few operation formats ::
 
 Just in case, original [StyleGAN2-ada] charms:
 * claimed to be up to 30% faster than original [StyleGAN2]
-* has greatly improved training (requires 10+ times fewer samples)
+* has greatly improved training (requires 10+ times fewer samples than original [StyleGAN2])
 * has lots of adjustable internal training settings
 * works with plain image folders or zip archives (instead of custom datasets)
 * should be easier to tweak/debug
@@ -178,6 +179,7 @@ Original paper: https://arxiv.org/abs/2006.06676
 [StyleGAN2-ada]: <https://github.com/NVlabs/stylegan2-ada-pytorch>
 [StyleGAN2]: <https://github.com/NVlabs/stylegan2>
 [Tensorflow-based version]: <https://github.com/eps696/stylegan2>
+[DeceiveD]: <https://github.com/EndlessSora/DeceiveD>
 [Aydao]: <https://github.com/aydao/stylegan2-surgery>
 [FFMPEG]: <https://ffmpeg.org/download.html>
 [Colab notebook]: <https://colab.research.google.com/github/eps696/stylegan2ada/blob/master/StyleGAN2a_colab.ipynb>
