@@ -213,11 +213,11 @@ def training_loop(
             ddp_modules[name] = module
 
     # Setup training phases.
-    if rank == 0:
+    # if rank == 0:
         # print('Setting up training phases...')
 # !!! apa
-        dict_apa = {'apa':apa} if apa else {}
-        loss = dnnlib.util.construct_class_by_name(device=device, **ddp_modules, **dict_apa, **loss_kwargs) # subclass of training.loss.Loss
+    dict_apa = {'apa':apa} if apa else {}
+    loss = dnnlib.util.construct_class_by_name(device=device, **ddp_modules, **dict_apa, **loss_kwargs) # subclass of training.loss.Loss
     # loss = dnnlib.util.construct_class_by_name(device=device, **ddp_modules, **loss_kwargs) # subclass of training.loss.Loss
 
     phases = []
