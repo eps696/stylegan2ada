@@ -5,7 +5,7 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eps696/stylegan2ada/blob/master/StyleGAN2a_colab.ipynb)
 
 This version of the PyTorch-based [StyleGAN2-ada] is intended mostly for fellow artists, who rarely look at scientific metrics, but rather need a working creative tool. 
-Tested on Python 3.7~3.8 + PyTorch 1.7~1.10, requires [FFMPEG] for sequence-to-video conversions. For more explicit details refer to the original implementations. 
+Tested on Python 3.7\~3.8 + PyTorch 1.7\~1.10, requires [FFMPEG] for sequence-to-video conversions. For more explicit details refer to the original implementations. 
 
 Here is previous [Tensorflow-based version], which produces compatible models (but not vice versa).  
 I still prefer it for few-shot training (~100 imgs) on the older hardware.
@@ -17,7 +17,7 @@ I still prefer it for few-shot training (~100 imgs) on the older hardware.
 * various conversion options (changing resolution/aspect, adding alpha channel, etc.) for pretrained models (for further finetuning)
 * transparency (alpha channel) support (auto-picked from dataset)
 * using plain image subfolders as conditional datasets 
-* adaptive pseudo augmentation from [DeceiveD] (on by default)
+* **upd:** adaptive pseudo augmentation from [DeceiveD] (on by default)
 * funky "digression" inference technique, ported from [Aydao]
 
 Few operation formats ::
