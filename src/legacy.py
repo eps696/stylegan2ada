@@ -127,7 +127,7 @@ def _populate_module_params(module, *patterns):
 #----------------------------------------------------------------------------
 
 # !!! custom
-def create_networks(data, full=False, custom=True, **ex_kwargs):
+def create_networks(data, full=False, custom=True, init=True, labels=None, **ex_kwargs):
     if custom:
         from training import stylegan2_multi as networks
     else:
@@ -141,20 +141,23 @@ def create_networks(data, full=False, custom=True, **ex_kwargs):
         fmap_base = 32768 if data['G_ema'].img_resolution >= 512 else 16384
 
     kwargs = dnnlib.EasyDict( # both G and D
-        c_dim           = Gs_in.c_dim,
+        c_dim           = Gs_in.c_dim if labels is None else labels,
         img_resolution  = Gs_in.img_resolution,
         img_channels    = Gs_in.img_channels,
         init_res        = init_res,
-        # mapping_kwargs  = dnnlib.EasyDict(num_layers = Gs_in.mapping.num_layers),
     )
     G_kwargs = dnnlib.EasyDict(**kwargs)
     G_kwargs.z_dim           = Gs_in.z_dim
     G_kwargs.w_dim           = Gs_in.w_dim
     G_kwargs.synthesis_kwargs = dnnlib.EasyDict(channel_base = fmap_base, **ex_kwargs)
-    G_kwargs.mapping_kwargs  = dnnlib.EasyDict(num_layers = Gs_in.mapping.num_layers)
+    try:
+        G_kwargs.mapping_kwargs = dnnlib.EasyDict(num_layers = Gs_in.mapping.num_layers)
+    except:
+        G_kwargs.mapping_kwargs = dnnlib.EasyDict(num_layers = 8)
 
     G_out = networks.Generator(**G_kwargs).eval().requires_grad_(False)
-    misc.copy_params_and_buffers(Gs_in, G_out, require_all=False)
+    if init is True:
+        misc.copy_params_and_buffers(Gs_in, G_out, require_all=False)
     nets_out = dict(G_ema=G_out)
     # nets_out = dnnlib.EasyDict(G_ema=G_out)
 
@@ -166,7 +169,8 @@ def create_networks(data, full=False, custom=True, **ex_kwargs):
         # D_kwargs.architecture   = 'orig' # cifar 
         D_kwargs.mapping_kwargs = dnnlib.EasyDict(num_layers=0)
         D_out = networks.Discriminator(**D_kwargs).eval().requires_grad_(False)
-        misc.copy_params_and_buffers(D_in, D_out, require_all=False)
+        if init is True:
+            misc.copy_params_and_buffers(D_in, D_out, require_all=False)
         nets_out['D'] = D_out
         nets_out['G'] = copy.deepcopy(G_out).requires_grad_(False) # .eval().to(device) # type: ignore
 
