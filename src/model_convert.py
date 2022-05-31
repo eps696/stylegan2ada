@@ -22,7 +22,7 @@ parser.add_argument('--out_dir', default='./', help='Output directory for reduce
 parser.add_argument('-r', '--reconstruct', action='store_true', help='Reconstruct model (add internal arguments)')
 parser.add_argument('-s', '--res', default=None, help='Target resolution in format X-Y')
 parser.add_argument('-a', '--alpha', action='store_true', help='Add alpha channel for RGBA processing')
-parser.add_argument('-l', '--labels', default=0, type=int, help='Make conditional model')
+parser.add_argument('-l', '--labels', default=None, type=int, help='Labels for conditional model')
 parser.add_argument('-f', '--full', action='store_true', help='Save full model')
 parser.add_argument('-v', '--verbose', action='store_true')
 a = parser.parse_args()

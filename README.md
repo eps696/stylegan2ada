@@ -162,6 +162,11 @@ All above (adding/cropping/padding layers + alpha channel) can be done in one sh
  model_convert.bat snapshot-256.pkl --res 1280-768 --alpha
 ```
 
+* Add X labels to a trained model for further finetuning as conditional:
+```
+ model_convert.bat snapshot-1024.pkl --labels X
+```
+
 * Convert `sg2-1024.pt` model, created in [Rosinality](https://github.com/rosinality/stylegan2-pytorch/) or [StyleGAN2-NADA](https://github.com/rinongal/StyleGAN-nada) repo to Nvidia SG2-ada-pytorch PKL format, by copying the weights on top of the base `sg2-ada-pt-1024.pkl` model of the same resolution:
 ```
  python src/model_pt2pkl.py --model_pt sg2-1024.pt --model_pkl sg2-ada-pt-1024.pkl
