@@ -61,21 +61,21 @@ This will cut every source image (or video frame) into 512x512px fragments, over
 If you edit the images yourself (e.g. for non-square aspect ratios), ensure their correct size. 
 For conditional model split the data by subfolders (`mydata/1`, `mydata/2`, ..).
 
-* Train StyleGAN2-ada on the prepared dataset (image folder or zip archive):
+* Train StyleGAN2-ada on the prepared dataset `mydata` (image folder or zip archive):
 ```
- train.bat mydata
+ train.bat mydata --kimg 1000
 ```
+Training duration is defined here by `--kimg X` argument (amount of thousands of samples processed). Reasonable value for training from scratch is ~5000, while for finetuning 1000 may be sufficient.  
+
 This will run training process, according to the settings in `src/train.py` (check and explore those!!). Results (models and samples) are saved under `train` directory, similar to original Nvidia approach. For conditional model add `--cond` option.
 
 Please note: we save both compact models (containing only Gs network for inference) as `<dataset>-...pkl` (e.g. `mydata-512-0360.pkl`), and full models (containing G/D/Gs networks for further training) as `snapshot-...pkl`. The naming is for convenience only.
-
-Training duration is defined by `--kimg X` argument (amount of thousands of samples processed). Reasonable value for training from scratch is ~5000, while for finetuning 1000 may be sufficient.  
 
 If you have troubles with custom cuda ops, try removing their cached version (`C:\Users\eps\AppData\Local\torch_extensions` on Windows).
 
 * Resume training on `mydata` dataset from the last saved model at `train/000-mydata-512-..` directory:
 ```
- train_resume.bat mydata 000-mydata-512-..
+ train_resume.bat mydata 000-mydata-512-.. --kimg 1000
 ```
 
 * Uptrain (finetune) well-trained model `ffhq-512.pkl` on new data:
