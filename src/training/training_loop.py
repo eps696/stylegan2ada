@@ -270,16 +270,16 @@ def training_loop(
 
     # Train.
     if rank == 0:
-        print(f'Training for {total_kimg} kimg...')
-        print()
-    cur_nimg = 0
+        # print(f'Training for {total_kimg} kimg...')
+        print(' Training for %d kimg (%d left) \n' % (total_kimg, total_kimg-resume_kimg))
+    cur_nimg = int(resume_kimg * 1000)
     cur_tick = 0
     tick_start_nimg = cur_nimg
     tick_start_time = time.time()
     maintenance_time = tick_start_time - start_time
     batch_idx = 0
     if progress_fn is not None:
-        progress_fn(0, total_kimg)
+        progress_fn(cur_nimg // 1000, total_kimg)
     while True:
 
         # Fetch training data.
