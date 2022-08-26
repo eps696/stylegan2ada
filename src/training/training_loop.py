@@ -23,7 +23,7 @@ from torch_utils.ops import grid_sample_gradfix
 
 import dnnlib
 import legacy
-# from metrics import metric_main
+from metrics import metric_main
 
 # !!!
 from util.progress_bar import shortime
@@ -109,7 +109,7 @@ def training_loop(
     loss_kwargs             = {},       # Options for loss function.
 # !!!
     savenames             = None,   #
-    # metrics                 = [],       # Metrics to evaluate during training.
+    metrics                 = [],       # Metrics to evaluate during training.
     random_seed             = 0,        # Global random seed.
     num_gpus                = 1,        # Number of GPUs participating in the training.
     rank                    = 0,        # Rank of the current process in [0, num_gpus[.
@@ -257,7 +257,7 @@ def training_loop(
     # if rank == 0:
         # print('Initializing logs...')
     stats_collector = training_stats.Collector(regex='.*')
-    # stats_metrics = dict()
+    stats_metrics = dict()
     stats_jsonl = None
     stats_tfevents = None
     if rank == 0:
@@ -420,7 +420,6 @@ def training_loop(
                     pickle.dump(compact_data, f)
 
         # Evaluate metrics.
-        '''
         if (snapshot_data is not None) and (len(metrics) > 0):
             if rank == 0:
                 print('Evaluating metrics...')
@@ -428,9 +427,9 @@ def training_loop(
                 result_dict = metric_main.calc_metric(metric=metric, G=snapshot_data['G_ema'],
                     dataset_kwargs=training_set_kwargs, num_gpus=num_gpus, rank=rank, device=device)
                 if rank == 0:
-                    metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=snapshot_pkl)
+                    metric_main.report_metric(result_dict, run_dir=run_dir, snapshot_pkl=pkl_snap)
                 stats_metrics.update(result_dict.results)
-        '''
+
         del snapshot_data # conserve memory
 # !!!
         del compact_data # conserve memory
@@ -456,8 +455,8 @@ def training_loop(
             walltime = timestamp - start_time
             for name, value in stats_dict.items():
                 stats_tfevents.add_scalar(name, value.mean, global_step=global_step, walltime=walltime)
-            # for name, value in stats_metrics.items():
-                # stats_tfevents.add_scalar(f'Metrics/{name}', value, global_step=global_step, walltime=walltime)
+            for name, value in stats_metrics.items():
+                stats_tfevents.add_scalar(f'Metrics/{name}', value, global_step=global_step, walltime=walltime)
             stats_tfevents.flush()
         if progress_fn is not None:
             progress_fn(cur_nimg // 1000, total_kimg)

@@ -15,6 +15,7 @@ from torch_utils import custom_ops
 
 import dnnlib
 from training import training_loop
+from metrics import metric_main
 
 from util.utilgan import calc_init_res, basename, file_list
 
@@ -44,6 +45,7 @@ def setup_training_loop_kwargs(
 
     # general & perf options 
     gpus       = None, # Number of GPUs: <int>, default = 1 gpu
+    metrics    = None, # List of metric names: [], ['fid50k_full'] (default), ...
     fp32       = None, # Disable mixed-precision training: <bool>, default = False
     nhwc       = None, # Use NHWC memory format with FP16: <bool>, default = False
     workers    = None, # Override number of DataLoader workers: <int>, default = 3
@@ -62,6 +64,13 @@ def setup_training_loop_kwargs(
     assert snap >= 1, '--snap must be at least 1'
     args.image_snapshot_ticks = 1 * gpus if kimg <= 1000 else 4 * gpus
     args.network_snapshot_ticks = snap
+
+    if metrics is None:
+        metrics = []
+    assert isinstance(metrics, list)
+    if not all(metric_main.is_valid_metric(metric) for metric in metrics):
+        raise UserError('\n'.join(['--metrics can only contain the following values:'] + metric_main.list_valid_metrics()))
+    args.metrics = metrics
 
     args.random_seed = seed
 
@@ -345,6 +354,7 @@ class CommaSeparatedList(click.ParamType):
 @click.option('--augpipe', default='gf_bnc', help='Augmentation pipeline')
 # misc perf
 @click.option('--gpus', default=1, help='Number of GPUs to use [default: 1]', type=int, metavar='INT')
+@click.option('--metrics', help='Comma-separated list or "none" [default: none]', type=CommaSeparatedList())
 @click.option('--fp32', is_flag=True, help='Disable mixed-precision training', metavar='BOOL')
 @click.option('--nhwc', is_flag=True, help='Use NHWC memory format with FP16', metavar='BOOL')
 @click.option('--workers', type=int, help='Override number of DataLoader workers', metavar='INT')
