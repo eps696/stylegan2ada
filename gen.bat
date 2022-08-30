@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 > NUL
 rem set TORCH_HOME=C:\X\torch
 rem set TORCH_EXTENSIONS_DIR=src\torch_utils\ops\.cache
 

@@ -1,4 +1,6 @@
 @echo off
+chcp 65001 > NUL
+
 if "%1"=="" goto help
 
 python src/_play_vectors.py --model models/%1 --base_lat _in/%2 --vector_dir _in/%3 --out_dir _out/%~n1-%~n3 ^

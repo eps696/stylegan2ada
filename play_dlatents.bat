@@ -1,4 +1,6 @@
 @echo off
+chcp 65001 > NUL
+
 if "%1"=="" goto help
 
 python src/_play_dlatents.py --model models/%1 --dlatents _in/%2 --out_dir _out/%~n1-%~n2 --fstep %3 --size %4 ^

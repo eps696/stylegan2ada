@@ -320,13 +320,23 @@ class CommaSeparatedList(click.ParamType):
             return []
         return value.split(',')
 
+def _str_to_bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 @click.command()
 @click.pass_context
 @click.option('--train_dir', default='train', help='Root directory for training results [default: train]', metavar='DIR')
 # data
 @click.option('--data', help='Training data (directory or zip)', metavar='PATH', required=True)
 @click.option('--resume', help='Resume training [default: None]', metavar='PKL')
-@click.option('--mirror', default=True, type=bool, help='Enable dataset x-flips [default: true]', metavar='BOOL')
+@click.option('--mirror', default=True, type=_str_to_bool, help='Enable dataset x-flips [default: true]', metavar='BOOL')
 @click.option('--cond', is_flag=True, help='Train conditional model based on dataset labels [default: false]', metavar='BOOL')
 # training
 @click.option('--cfg', default='auto', help='Base config [default: auto]')
