@@ -319,7 +319,12 @@ def convert_dataset(
     labels = []
     for idx, image in tqdm(enumerate(input_iter), total=num_files):
         idx_str = f'{idx:08d}'
-        archive_fname = f'{idx_str[:5]}/img{idx_str}.png'
+        idx_label = image['label']
+
+        if idx_label is not None:
+            archive_fname = f'{idx_label:05d}/img{idx_str}.png'
+        else:
+            archive_fname = f'{idx_str[:5]}/img{idx_str}.png'
 
         # Apply crop and resize.
         if width is not None or height is not None:
@@ -360,7 +365,6 @@ def convert_dataset(
         img.save(image_bits, format='png', compress_level=0, optimize=False)
         save_bytes(os.path.join(archive_root_dir, archive_fname), image_bits.getbuffer())
         labels.append([archive_fname, image['label']] if image['label'] is not None else None)
-        print(image['label'])
 
     metadata = {
         'labels': labels if all(x is not None for x in labels) else None
