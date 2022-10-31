@@ -83,6 +83,8 @@ If you have troubles with custom cuda ops, try removing their cached version (`C
  train_resume.bat newdata ffhq-512.pkl --kimg 1000
 ```
 
+NB: add `--fmaps_fix` argument if you finetune models, trained in the original [Tensorflow-based version](https://github.com/NVlabs/stylegan2).  
+
 ## Generation
 
 Generated results are saved as sequences and videos (by default, under `_out` directory).
