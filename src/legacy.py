@@ -134,7 +134,7 @@ def create_networks(data, full=False, custom=True, init=True, labels=None, **ex_
         from training import networks
 
     Gs_in = data['G_ema']
-    init_res = Gs_in.init_res if hasattr(Gs_in, 'init_res') else [Gs_in.img_channels, Gs_in.img_resolution, Gs_in.img_resolution]
+    init_res = Gs_in.init_res if hasattr(Gs_in, 'init_res') else [4,4]
     if hasattr(Gs_in.synthesis, 'fmap_base'): # saved (in updated network)?
         fmap_base = data['G_ema'].synthesis.fmap_base
     else: # default from original configs

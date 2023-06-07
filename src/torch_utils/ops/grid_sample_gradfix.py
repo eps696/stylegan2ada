@@ -58,7 +58,7 @@ class _GridSample2dBackward(torch.autograd.Function):
     @staticmethod
     def forward(ctx, grad_output, input, grid):
         op = torch._C._jit_get_operation('aten::grid_sampler_2d_backward')
-# !!! fix for pytorch > 1.10
+# !!! fix for pytorch > 1.10  https://github.com/NVlabs/stylegan3/issues/188
         if isinstance(op, tuple) or len(op)==2: op = op[0]
         if _use_pytorch_1_11_api:
             output_mask = (ctx.needs_input_grad[1], ctx.needs_input_grad[2])
