@@ -68,7 +68,8 @@ def modulated_conv2d(
 # !!! custom size & multi latent blending
         if size is not None and up==2:
             x = fix_size(x, size, scale_type)
-            x = multimask(x, size, latmask, countHW, splitfine)
+        if (countHW != [1,1] or latmask is not None) and up==2:
+            x = multimask(x, x.shape[-2:], latmask, countHW, splitfine)
         if demodulate and noise is not None:
             x = fma.fma(x, dcoefs.to(x.dtype).reshape(batch_size, -1, 1, 1), noise.to(x.dtype))
         elif demodulate:
@@ -88,7 +89,8 @@ def modulated_conv2d(
 # !!! custom size & multi latent blending
     if size is not None and up==2:
         x = fix_size(x, size, scale_type)
-        x = multimask(x, size, latmask, countHW, splitfine)
+    if (countHW != [1,1] or latmask is not None) and up==2:
+        x = multimask(x, x.shape[-2:], latmask, countHW, splitfine)
     if noise is not None:
         x = x.add_(noise)
     return x
@@ -334,7 +336,7 @@ class SynthesisNetwork(torch.nn.Module):
             print(' .. init res', init_res, size)
         keep_first_layers = 2 if scale_type == 'fit' else None
         hws = hw_scales(size, custom_res, self.res_log2 - 2, keep_first_layers, verbose)
-        if verbose: print(hws, '..', custom_res, self.res_log2-1)
+        # if verbose: print(hws, '..', custom_res, self.res_log2-1)
         
         self.num_ws = 0
         for i, res in enumerate(self.block_resolutions):

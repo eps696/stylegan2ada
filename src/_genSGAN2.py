@@ -19,27 +19,29 @@ except: # normal console
 
 desc = "Customized StyleGAN2-ada on PyTorch"
 parser = argparse.ArgumentParser(description=desc)
-parser.add_argument('--out_dir', default='_out', help='output directory')
-parser.add_argument('--model', default='models/ffhq-1024.pkl', help='path to pkl checkpoint file')
-parser.add_argument('--labels', '-l', type=int, default=None, help='labels/categories for conditioning')
+parser.add_argument('-o', '--out_dir',  default='_out', help='output directory')
+parser.add_argument('-m', '--model',    default='models/ffhq-1024.pkl', help='path to pkl checkpoint file')
+parser.add_argument('-l', '--labels',   default=None, type=int, help='labels/categories for conditioning')
 # custom
-parser.add_argument('--size', default=None, help='output resolution, set in X-Y format')
-parser.add_argument('--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
-parser.add_argument('--latmask', default=None, help='external mask file (or directory) for multi latent blending')
-parser.add_argument('--nXY', '-n', default='1-1', help='multi latent frame split count by X (width) and Y (height)')
+parser.add_argument('-s', '--size',     default=None, help='output resolution, set in X-Y format')
+parser.add_argument('-sc', '--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
+parser.add_argument('-lm', '--latmask', default=None, help='external mask file (or directory) for multi latent blending')
+parser.add_argument('-n', '--nXY',      default='1-1', help='multi latent frame split count by X (width) and Y (height)')
 parser.add_argument('--splitfine', type=float, default=0, help='multi latent frame split edge sharpness (0 = smooth, higher => finer)')
-parser.add_argument('--trunc', type=float, default=0.8, help='truncation psi 0..1 (lower = stable, higher = various)')
-parser.add_argument('--digress', type=float, default=0, help='distortion technique by Aydao (strength of the effect)') 
+parser.add_argument('-tr', '--trunc',   default=0.8, type=float, help='truncation psi 0..1 (lower = stable, higher = various)')
+parser.add_argument('-d', '--digress',  default=0, type=float, help='distortion technique by Aydao (strength of the effect)') 
 parser.add_argument('--save_lat', action='store_true', help='save latent vectors to file')
-parser.add_argument('--seed', type=int, default=None)
-parser.add_argument('--verbose', '-v', action='store_true')
+parser.add_argument('--seed',           default=None, type=int)
+parser.add_argument('-v', '--verbose',  action='store_true')
 # animation
 parser.add_argument('--frames', default='200-25', help='total frames to generate, length of interpolation step')
 parser.add_argument("--cubic", action='store_true', help="use cubic splines for smoothing")
 parser.add_argument("--gauss", action='store_true', help="use Gaussian smoothing")
 a = parser.parse_args()
 
-if a.size is not None: a.size = [int(s) for s in a.size.split('-')][::-1]
+if a.size is not None: 
+    a.size = [int(s) for s in a.size.split('-')][::-1]
+    if len(a.size) == 1: a.size = a.size * 2
 [a.frames, a.fstep] = [int(s) for s in a.frames.split('-')]
 
 def generate():
@@ -59,12 +61,11 @@ def generate():
         nHW = [int(s) for s in a.nXY.split('-')][::-1]
         assert len(nHW)==2, ' Wrong count nXY: %d (must be 2)' % len(nHW)
         n_mult = nHW[0] * nHW[1]
-        if a.verbose is True and n_mult > 1: print(' Latent blending w/split frame %d x %d' % (nHW[1], nHW[0]))
-        lmask = np.tile(np.asarray([[[[1]]]]), (1,n_mult,1,1))
         Gs_kwargs.countHW = nHW
         Gs_kwargs.splitfine = a.splitfine
+        if a.verbose is True and n_mult > 1: print(' Latent blending w/split frame %d x %d' % (nHW[1], nHW[0]))
+        lmask = [None]
     else:
-        if a.verbose is True: print(' Latent blending with mask', a.latmask)
         n_mult = 2
         if osp.isfile(a.latmask): # single file
             lmask = np.asarray([[img_read(a.latmask)[:,:,0] / 255.]]) # [1,1,h,w]
@@ -72,9 +73,9 @@ def generate():
             lmask = np.expand_dims(np.asarray([img_read(f)[:,:,0] / 255. for f in img_list(a.latmask)]), 1) # [n,1,h,w]
         else:
             print(' !! Blending mask not found:', a.latmask); exit(1)
-        if a.verbose is True: print(' latmask shape', lmask.shape)
+        if a.verbose is True: print(' Latent blending with mask', a.latmask, lmask.shape)
         lmask = np.concatenate((lmask, 1 - lmask), 1) # [frm,2,h,w]
-    lmask = torch.from_numpy(lmask).to(device)
+        lmask = torch.from_numpy(lmask).to(device)
     
     # load base or custom network
     pkl_name = osp.splitext(a.model)[0]
@@ -128,6 +129,12 @@ def generate():
     else:
         labels = [None]
 
+    # warm up
+    if custom:
+        _ = Gs(latents[0], labels[0], lmask[0], dconst[0], noise_mode='const')
+    else:
+        _ = Gs(latents[0], labels[0], noise_mode='const')
+    
     # generate images from latent timeline
     pbar = ProgressBar(frame_count)
     for i in range(frame_count):
