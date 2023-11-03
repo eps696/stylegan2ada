@@ -141,7 +141,7 @@ def generate():
     
         latent  = latents[i] # [X,512]
         label   = labels[i % len(labels)]
-        latmask = lmask[i % len(lmask)] if lmask is not None else [None] # [X,h,w]
+        latmask = lmask[i % len(lmask)] # [X,h,w] or None
         dc      = dconst[i % len(dconst)] # [X,512,4,4]
 
         # generate multi-latent result
