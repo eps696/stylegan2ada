@@ -27,11 +27,12 @@ parser.add_argument('-s', '--size',     default=None, help='output resolution, s
 parser.add_argument('-sc', '--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
 parser.add_argument('-lm', '--latmask', default=None, help='external mask file (or directory) for multi latent blending')
 parser.add_argument('-n', '--nXY',      default='1-1', help='multi latent frame split count by X (width) and Y (height)')
-parser.add_argument('--splitfine', type=float, default=0, help='multi latent frame split edge sharpness (0 = smooth, higher => finer)')
-parser.add_argument('-tr', '--trunc',   default=0.8, type=float, help='truncation psi 0..1 (lower = stable, higher = various)')
+parser.add_argument(      '--splitfine',default=0, type=float, help='multi latent frame split edge sharpness (0 = smooth, higher => finer)')
+parser.add_argument('-tr','--trunc',    default=0.8, type=float, help='truncation psi 0..1 (lower = stable, higher = various)')
 parser.add_argument('-d', '--digress',  default=0, type=float, help='distortion technique by Aydao (strength of the effect)') 
 parser.add_argument('--save_lat', action='store_true', help='save latent vectors to file')
-parser.add_argument('--seed',           default=None, type=int)
+parser.add_argument(      '--ext',      default='jpg', help='save as jps or png')
+parser.add_argument(      '--seed',     default=None, type=int)
 parser.add_argument('-v', '--verbose',  action='store_true')
 # animation
 parser.add_argument('--frames', default='200-25', help='total frames to generate, length of interpolation step')
@@ -152,7 +153,7 @@ def generate():
         output = (output.permute(0,2,3,1) * 127.5 + 128).clamp(0, 255).to(torch.uint8).cpu().numpy()
 
         # save image
-        ext = 'png' if output.shape[3]==4 else 'jpg'
+        ext = a.ext if a.ext is not None else 'png' if output.shape[3]==4 else 'jpg'
         filename = osp.join(a.out_dir, "%06d.%s" % (i,ext))
         imsave(filename, output[0])
         pbar.upd()
