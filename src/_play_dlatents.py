@@ -27,6 +27,7 @@ parser.add_argument('--size', default=None, help='Output resolution')
 parser.add_argument('--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
 parser.add_argument('--trunc', type=float, default=1, help='Truncation psi 0..1 (lower = stable, higher = various)')
 parser.add_argument('--digress', type=float, default=0, help='distortion technique by Aydao (strength of the effect)') 
+parser.add_argument('--ext', default='jpg', help='save as jps or png')
 parser.add_argument('--verbose', action='store_true')
 parser.add_argument('--ops', default='cuda', help='custom op implementation (cuda or ref)')
 # animation
@@ -112,7 +113,7 @@ def main():
             output = Gs.synthesis(dlatents[i], noise_mode='const')
         output = (output.permute(0,2,3,1) * 127.5 + 128).clamp(0, 255).to(torch.uint8).cpu().numpy()
 
-        ext = 'png' if output.shape[3]==4 else 'jpg'
+        ext = 'png' if output.shape[3]==4 else a.ext if a.ext is not None else 'jpg'
         filename = osp.join(a.out_dir, "%06d.%s" % (i,ext))
         imsave(filename, output[0])
         pbar.upd()

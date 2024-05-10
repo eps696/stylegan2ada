@@ -28,6 +28,7 @@ parser.add_argument('--model', default='models/ffhq-1024.pkl', help='path to che
 parser.add_argument('--size', default=None, help='output resolution, set in X-Y format')
 parser.add_argument('--scale_type', default='pad', help="main types: pad, padside, symm, symmside")
 parser.add_argument('--trunc', type=float, default=0.8, help='truncation psi 0..1 (lower = stable, higher = various)')
+parser.add_argument('--ext', default='jpg', help='save as jps or png')
 parser.add_argument('--verbose', action='store_true')
 parser.add_argument('--ops', default='cuda', help='custom op implementation (cuda or ref)')
 # animation
@@ -71,23 +72,23 @@ def get_coeffs_dir(lrange, count):
         xs.append( x * (lrange[1] - lrange[0]) + lrange[0] )
     return xs
     
-def make_loop(base_latent, direction, lrange, fcount, start_frame=0):
+def make_loop(base_latent, direction, lrange, fcount, start_frame=0, ext='jpg'):
     coeffs = get_coeffs_dir(lrange, fcount//2)
     # pbar = ProgressBar(fcount)
     for i in range(fcount):
         img = render_latent_dir(base_latent, direction, coeffs[i])
-        fname1 = os.path.join(a.out_dir, "%06d.jpg" % (i+start_frame))
+        fname1 = os.path.join(a.out_dir, "%06d.%s" % (i+start_frame, ext))
         if i%2==0 and a.verbose is True:
             cv2.imshow('latent', img[:,:,::-1])
             cv2.waitKey(10)
         imsave(fname1, img)
         # pbar.upd()
 
-def make_transit(lat1, lat2, fcount, start_frame=0):
+def make_transit(lat1, lat2, fcount, start_frame=0, ext='jpg'):
     # pbar = ProgressBar(fcount)
     for i in range(fcount):
         img = render_latent_mix(lat1, lat2, i/fcount)
-        fname = os.path.join(a.out_dir, "%06d.jpg" % (i+start_frame))
+        fname = os.path.join(a.out_dir, "%06d.%s" % (i+start_frame, ext))
         if i%2==0 and a.verbose is True:
             cv2.imshow('latent', img[:,:,::-1])
             cv2.waitKey(10)
@@ -151,10 +152,10 @@ def main():
 
     pbar = ProgressBar(len(directions))
     for i, direction in enumerate(directions):
-        make_loop(base_latent, direction, lrange, a.fstep*2, a.fstep*2 * i)
+        make_loop(base_latent, direction, lrange, a.fstep*2, a.fstep*2 * i, a.ext)
         pbar.upd()
         
-        # make_transit(base_lats[i], base_lats[(i+1)%len(base_lats)], n, 2*n*i + n)
+        # make_transit(base_lats[i], base_lats[(i+1)%len(base_lats)], n, 2*n*i + n, a.ext)
 
 
 if __name__ == '__main__':

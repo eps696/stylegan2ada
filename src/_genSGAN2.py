@@ -153,7 +153,7 @@ def generate():
         output = (output.permute(0,2,3,1) * 127.5 + 128).clamp(0, 255).to(torch.uint8).cpu().numpy()
 
         # save image
-        ext = a.ext if a.ext is not None else 'png' if output.shape[3]==4 else 'jpg'
+        ext = 'png' if output.shape[3]==4 else a.ext if a.ext is not None else 'jpg'
         filename = osp.join(a.out_dir, "%06d.%s" % (i,ext))
         imsave(filename, output[0])
         pbar.upd()
