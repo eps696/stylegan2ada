@@ -1,5 +1,5 @@
 click
 psutil
 ninja
-imageio==2.19
+imageio
 imageio-ffmpeg
