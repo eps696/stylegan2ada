@@ -294,6 +294,13 @@ class SynthesisBlock(torch.nn.Module):
         if self.is_last or self.architecture == 'skip':
             y = self.torgb(x, next(w_iter), fused_modconv=fused_modconv)
             y = y.to(dtype=torch.float32, memory_format=torch.contiguous_format)
+
+# !!! custom torgb blending
+            countHW = self.conv1.countHW
+            splitfine = self.conv1.splitfine
+            if max(countHW) > 1 or latmask is not None:
+                y = multimask(y, y.shape[-2:], latmask, countHW, splitfine)
+
             img = img.add_(y) if img is not None else y
 
         assert x.dtype == dtype
